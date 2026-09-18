@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { appConfig } from '../config/app'
+import { Brand } from '../components/Brand'
 import { Icon, type IconName } from '../components/Icon'
 import { useAuth } from '../hooks/useAuth'
 
@@ -47,10 +48,7 @@ export function AuthenticatedLayout() {
 
       <aside className={`app-sidebar ${isMenuOpen ? 'is-open' : ''}`}>
         <div className="sidebar-header">
-          <div className="brand">
-            <span className="brand-mark" aria-hidden="true"><Icon name="paw" size={23} /></span>
-            <span>{appConfig.name}</span>
-          </div>
+          <Brand />
           <button className="sidebar-close" type="button" aria-label="Fechar menu" onClick={() => setIsMenuOpen(false)}>
             ×
           </button>

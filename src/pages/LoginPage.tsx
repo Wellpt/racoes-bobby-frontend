@@ -1,9 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { ApiError } from '../api/http'
+import { Brand } from '../components/Brand'
 import { PageLoader } from '../components/PageLoader'
-import { Icon } from '../components/Icon'
-import { appConfig } from '../config/app'
 import { useAuth } from '../hooks/useAuth'
 
 interface LoginLocationState {
@@ -55,10 +54,7 @@ export function LoginPage() {
   return (
     <main className="login-page">
       <section className="login-hero">
-        <div className="brand">
-          <span className="brand-mark" aria-hidden="true"><Icon name="paw" size={23} /></span>
-          <span>{appConfig.name}</span>
-        </div>
+        <Brand />
         <div>
           <p className="eyebrow">Gestão simples, cuidado de verdade</p>
           <h1>Seu caixa mais leve. Seu dia mais organizado.</h1>
