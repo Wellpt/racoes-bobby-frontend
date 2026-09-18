@@ -306,6 +306,8 @@ button:disabled { cursor: wait; opacity: 0.65; }
   box-shadow: var(--shadow);
 }
 .button-with-icon { gap: 9px; padding-inline: 20px; }
+.page-intro-actions { display: flex; align-items: center; gap: 10px; }
+.privacy-button { white-space: nowrap; }
 .compact-intro { margin-bottom: 24px; }
 
 /* Dashboard */
@@ -613,6 +615,8 @@ button:disabled { cursor: wait; opacity: 0.65; }
   .topbar-user { display: none; }
   .dialog-actions { flex-direction: column-reverse; }
   .dashboard-intro .primary-button, .page-intro .primary-button { width: 100%; }
+  .page-intro-actions { width: 100%; flex-direction: column; }
+  .page-intro-actions .secondary-button { width: 100%; }
   .metric-card { min-height: auto; padding: 20px; }
   .quick-action-card { grid-template-columns: auto minmax(0, 1fr); min-height: auto; padding: 20px; }
   .quick-action-card > .icon { display: none; }
