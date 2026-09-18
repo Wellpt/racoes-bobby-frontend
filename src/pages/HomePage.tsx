@@ -19,6 +19,7 @@ export function HomePage() {
   const [overview, setOverview] = useState<SalesOverview | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
+  const [showValues, setShowValues] = useState(false)
   const firstName = user?.nome.trim().split(/\s+/)[0]
 
   const reload = useCallback(() => {
@@ -45,6 +46,15 @@ export function HomePage() {
 
   const totals = overview ?? emptyOverview
 
+  function toggleValuesVisibility() {
+    setShowValues((currentVisibility) => !currentVisibility)
+  }
+
+  function displayValue(value: number): string {
+    if (!overview) return '—'
+    return showValues ? formatCurrency(value) : 'R$ •••••'
+  }
+
   return (
     <section>
       <div className="page-intro dashboard-intro">
@@ -53,10 +63,21 @@ export function HomePage() {
           <h2>Olá, {firstName}.</h2>
           <p>Acompanhe o movimento da loja e registre uma venda em poucos passos.</p>
         </div>
-        <Link className="primary-button button-with-icon" to="/nova-venda">
-          <Icon name="plus" size={19} />
-          Nova venda
-        </Link>
+        <div className="page-intro-actions">
+          <button
+            className="secondary-button button-with-icon privacy-button"
+            type="button"
+            aria-pressed={!showValues}
+            onClick={toggleValuesVisibility}
+          >
+            <Icon name={showValues ? 'eye-off' : 'eye'} size={19} />
+            {showValues ? 'Ocultar valores' : 'Exibir valores'}
+          </button>
+          <Link className="primary-button button-with-icon" to="/nova-venda">
+            <Icon name="plus" size={19} />
+            Nova venda
+          </Link>
+        </div>
       </div>
 
       {error ? (
@@ -74,7 +95,7 @@ export function HomePage() {
             <div className="metric-icon"><Icon name="cash" /></div>
             <div>
               <p>Vendas de hoje</p>
-              <strong>{overview ? formatCurrency(totals.total_hoje) : '—'}</strong>
+              <strong aria-label={showValues ? undefined : 'Valor oculto'}>{displayValue(totals.total_hoje)}</strong>
               <span>Movimento do dia atual</span>
             </div>
           </article>
@@ -82,7 +103,7 @@ export function HomePage() {
             <div className="metric-icon"><Icon name="chart" /></div>
             <div>
               <p>Esta semana</p>
-              <strong>{overview ? formatCurrency(totals.total_semana) : '—'}</strong>
+              <strong aria-label={showValues ? undefined : 'Valor oculto'}>{displayValue(totals.total_semana)}</strong>
               <span>De segunda a domingo</span>
             </div>
           </article>
@@ -90,7 +111,7 @@ export function HomePage() {
             <div className="metric-icon"><Icon name="calendar" /></div>
             <div>
               <p>Este mês</p>
-              <strong>{overview ? formatCurrency(totals.total_mes) : '—'}</strong>
+              <strong aria-label={showValues ? undefined : 'Valor oculto'}>{displayValue(totals.total_mes)}</strong>
               <span>Total acumulado no mês</span>
             </div>
           </article>
