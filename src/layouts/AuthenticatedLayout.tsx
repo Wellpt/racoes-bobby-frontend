@@ -1,16 +1,20 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { appConfig } from '../config/app'
+import { Icon, type IconName } from '../components/Icon'
 import { useAuth } from '../hooks/useAuth'
 
 interface NavigationItem {
   to: string
   label: string
   end: boolean
+  icon: IconName
 }
 
 const navigation: NavigationItem[] = [
-  { to: '/', label: 'Início', end: true },
+  { to: '/', label: 'Visão geral', end: true, icon: 'dashboard' },
+  { to: '/nova-venda', label: 'Nova venda', end: true, icon: 'plus' },
+  { to: '/vendas', label: 'Histórico', end: true, icon: 'history' },
 ]
 
 export function AuthenticatedLayout() {
@@ -44,7 +48,7 @@ export function AuthenticatedLayout() {
       <aside className={`app-sidebar ${isMenuOpen ? 'is-open' : ''}`}>
         <div className="sidebar-header">
           <div className="brand">
-            <span className="brand-mark" aria-hidden="true">{appConfig.initials}</span>
+            <span className="brand-mark" aria-hidden="true"><Icon name="paw" size={23} /></span>
             <span>{appConfig.name}</span>
           </div>
           <button className="sidebar-close" type="button" aria-label="Fechar menu" onClick={() => setIsMenuOpen(false)}>
@@ -54,7 +58,7 @@ export function AuthenticatedLayout() {
 
         <nav className="sidebar-nav" aria-label="Navegação principal">
           <p>Menu principal</p>
-          {navigation.map((item, index) => (
+          {navigation.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -62,7 +66,7 @@ export function AuthenticatedLayout() {
               className={({ isActive }) => isActive ? 'sidebar-link is-active' : 'sidebar-link'}
               onClick={() => setIsMenuOpen(false)}
             >
-              <span>{String(index + 1).padStart(2, '0')}</span>
+              <Icon name={item.icon} size={19} />
               {item.label}
             </NavLink>
           ))}
@@ -74,7 +78,9 @@ export function AuthenticatedLayout() {
             <strong>{user?.nome}</strong>
             <span>{user?.email}</span>
           </div>
-          <button type="button" onClick={() => void handleLogout()}>Sair</button>
+          <button type="button" onClick={() => void handleLogout()} aria-label="Sair">
+            <Icon name="logout" size={19} />
+          </button>
         </div>
       </aside>
 

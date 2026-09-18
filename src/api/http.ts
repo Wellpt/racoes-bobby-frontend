@@ -35,10 +35,6 @@ export async function apiRequest<T>(
     credentials: 'include',
   })
 
-  if (response.status === 401) {
-    window.dispatchEvent(new Event(UNAUTHORIZED_EVENT))
-  }
-
   if (!response.ok) {
     let message = 'Nao foi possivel concluir a solicitacao.'
     let code: string | undefined
@@ -49,6 +45,10 @@ export async function apiRequest<T>(
       code = body.codigo
     } catch {
       // Mantem a mensagem padrao quando a API nao retorna JSON.
+    }
+
+    if (response.status === 401 && code === 'invalid_session') {
+      window.dispatchEvent(new Event(UNAUTHORIZED_EVENT))
     }
 
     throw new ApiError(message, response.status, code)
@@ -65,4 +65,3 @@ export function onUnauthorized(handler: () => void): () => void {
   window.addEventListener(UNAUTHORIZED_EVENT, handler)
   return () => window.removeEventListener(UNAUTHORIZED_EVENT, handler)
 }
-

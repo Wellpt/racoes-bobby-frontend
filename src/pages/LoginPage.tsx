@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { ApiError } from '../api/http'
 import { PageLoader } from '../components/PageLoader'
+import { Icon } from '../components/Icon'
 import { appConfig } from '../config/app'
 import { useAuth } from '../hooks/useAuth'
 
@@ -55,13 +56,13 @@ export function LoginPage() {
     <main className="login-page">
       <section className="login-hero">
         <div className="brand">
-          <span className="brand-mark" aria-hidden="true">{appConfig.initials}</span>
+          <span className="brand-mark" aria-hidden="true"><Icon name="paw" size={23} /></span>
           <span>{appConfig.name}</span>
         </div>
         <div>
-          <p className="eyebrow">Gestão simplificada</p>
-          <h1>Uma base segura para o seu negócio.</h1>
-          <p>Organize sua operação em um sistema criado para a realidade da sua empresa.</p>
+          <p className="eyebrow">Gestão simples, cuidado de verdade</p>
+          <h1>Seu caixa mais leve. Seu dia mais organizado.</h1>
+          <p>Registre as vendas e acompanhe o movimento da Rações Bobby em um só lugar.</p>
         </div>
       </section>
 
@@ -70,7 +71,7 @@ export function LoginPage() {
           <div className="login-heading">
             <p className="eyebrow">Área de acesso</p>
             <h2>Entre na sua conta</h2>
-            <p>Informe suas credenciais para acessar o sistema.</p>
+            <p>Bem-vindo de volta. Informe seus dados para continuar.</p>
           </div>
 
           <form className="login-form" onSubmit={handleSubmit}>
@@ -109,4 +110,3 @@ export function LoginPage() {
     </main>
   )
 }
-

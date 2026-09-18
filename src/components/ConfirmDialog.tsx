@@ -5,6 +5,7 @@ interface ConfirmDialogProps extends PropsWithChildren {
   confirmLabel: string
   busyLabel: string
   isBusy: boolean
+  intent?: 'primary' | 'danger'
   error?: string | null
   onClose: () => void
   onConfirm: () => void
@@ -15,6 +16,7 @@ export function ConfirmDialog({
   confirmLabel,
   busyLabel,
   isBusy,
+  intent = 'danger',
   error,
   onClose,
   onConfirm,
@@ -54,7 +56,7 @@ export function ConfirmDialog({
           <button className="secondary-button" type="button" onClick={onClose} disabled={isBusy}>
             Cancelar
           </button>
-          <button className="danger-button" type="button" onClick={onConfirm} disabled={isBusy}>
+          <button className={intent === 'primary' ? 'primary-button' : 'danger-button'} type="button" onClick={onConfirm} disabled={isBusy}>
             {isBusy ? busyLabel : confirmLabel}
           </button>
         </div>
@@ -62,4 +64,3 @@ export function ConfirmDialog({
     </div>
   )
 }
-
