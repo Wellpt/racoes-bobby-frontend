@@ -1,44 +1,63 @@
-# Starter Kit - Frontend
+# Rações Bobby — Frontend
 
-Base React reutilizavel para sistemas comerciais pequenos e medios.
+Interface web do MVP comercial da Rações Bobby. O projeto consome o contrato
+da API do backend para autenticação por sessão, registro de vendas e consulta
+dos resultados atuais da loja.
 
-O projeto inclui:
+## Funcionalidades
 
-- login e restauracao de sessao;
-- rotas autenticadas;
-- layout responsivo com menu lateral;
-- cliente HTTP centralizado;
-- configuracao para GitHub Pages.
+- login e restauração de sessão por cookie `HttpOnly`;
+- visão geral com totais do dia, da semana e do mês;
+- registro de vendas com um ou mais itens;
+- venda anônima ou com nome do cliente;
+- itens vendidos por quilograma ou unidade;
+- pagamento em dinheiro, Pix ou cartão;
+- histórico do dia, da semana e do mês atual;
+- busca local no histórico por cliente, item ou número da venda;
+- layout responsivo para desktop, tablet e celular.
 
-Nao existem regras de clientes, ordens, vendas, estoque ou financeiro. Esses modulos devem ser adicionados pelo projeto derivado.
+O MVP não possui cadastro de clientes ou produtos, estoque, descontos, edição
+ou cancelamento de vendas porque essas operações não fazem parte do contrato
+atual da API.
 
-O Starter Kit nao define perfis nem permissoes. Cada projeto derivado adiciona essas regras apenas se precisar delas.
+## Execução local
 
-## Execucao local
+Requisitos: Node.js compatível com o Vite 8 e a API disponível na porta `8081`.
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-O Vite encaminha `/api` para `http://localhost:8080` durante o desenvolvimento.
+Por padrão, o Vite encaminha chamadas feitas em `/api` para
+`http://localhost:8081`. A aplicação fica disponível em
+`http://localhost:5173`.
 
-## Configuracao
+## Configuração
 
-Copie `.env.example` para `.env.local` quando precisar alterar os valores locais:
+Copie `.env.example` para `.env.local` se precisar alterar a configuração:
 
-- `VITE_API_BASE_URL`: URL da API.
-- `VITE_BASE_PATH`: caminho-base da publicacao.
-- `VITE_APP_NAME`: nome exibido no sistema.
-- `VITE_APP_INITIALS`: iniciais exibidas na marca.
+```env
+VITE_API_BASE_URL=/api
+VITE_BASE_PATH=/
+VITE_APP_NAME=Rações Bobby
+VITE_APP_INITIALS=RB
+```
 
-Para o GitHub Pages, configure `VITE_API_BASE_URL` em **Settings > Secrets and variables > Actions > Variables**. As demais variaveis sao opcionais.
+- `VITE_API_BASE_URL`: URL pública da API ou o caminho do proxy local;
+- `VITE_BASE_PATH`: caminho-base usado na publicação;
+- `VITE_APP_NAME`: nome exibido na interface;
+- `VITE_APP_INITIALS`: iniciais de fallback da marca.
+
+Todas as chamadas usam `credentials: "include"`. Em acesso direto à API, o
+endereço do frontend também deve estar presente em `FRONTEND_ORIGINS` no
+backend.
 
 ## Comandos
 
 ```bash
-npm run dev
-npm run lint
-npm run build
-npm run preview
+npm run dev      # servidor de desenvolvimento
+npm run build    # checagem TypeScript e bundle de produção
+npm run lint     # análise estática
+npm run preview  # prévia local do bundle
 ```
