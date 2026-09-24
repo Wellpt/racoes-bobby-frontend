@@ -5,19 +5,24 @@ import { registerSale } from '../api/sales'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { Icon } from '../components/Icon'
 import type {
+  RegisterSaleItemRequest,
   MeasurementUnit,
   PaymentMethod,
   RegisterSaleRequest,
   Sale,
 } from '../types/sales'
-import { formatCurrency } from '../utils/formatters'
+import { formatCurrency, formatQuantity } from '../utils/formatters'
+
+type ItemCalculationMode = 'quantity' | 'amount'
 
 interface SaleItemDraft {
   id: number
   description: string
   unit: MeasurementUnit
+  calculationMode: ItemCalculationMode
   quantity: string
   unitPrice: string
+  requestedAmount: string
 }
 
 const paymentMethods: Array<{
@@ -35,7 +40,15 @@ let nextItemId = 1
 function createDraftItem(): SaleItemDraft {
   const id = nextItemId
   nextItemId += 1
-  return { id, description: '', unit: 'kg', quantity: '', unitPrice: '' }
+  return {
+    id,
+    description: '',
+    unit: 'kg',
+    calculationMode: 'quantity',
+    quantity: '',
+    unitPrice: '',
+    requestedAmount: '',
+  }
 }
 
 function parseNumber(value: string): number {
@@ -48,10 +61,45 @@ function isValidDecimal(value: string, decimalPlaces: number): boolean {
 }
 
 function calculateDraftSubtotal(item: SaleItemDraft): number {
+  if (item.unit === 'kg' && item.calculationMode === 'amount') {
+    const requestedAmount = parseNumber(item.requestedAmount)
+    return Number.isFinite(requestedAmount) ? requestedAmount : 0
+  }
+
   const quantity = parseNumber(item.quantity)
   const unitPrice = parseNumber(item.unitPrice)
   if (!Number.isFinite(quantity) || !Number.isFinite(unitPrice)) return 0
   return quantity * unitPrice
+}
+
+function calculateApproximateQuantity(item: SaleItemDraft): number | null {
+  if (item.unit !== 'kg' || item.calculationMode !== 'amount') return null
+
+  const requestedAmount = parseNumber(item.requestedAmount)
+  const unitPrice = parseNumber(item.unitPrice)
+  if (
+    !Number.isFinite(requestedAmount)
+    || !Number.isFinite(unitPrice)
+    || requestedAmount <= 0
+    || unitPrice <= 0
+  ) {
+    return null
+  }
+
+  return Math.round((requestedAmount / unitPrice) * 1000) / 1000
+}
+
+function CalculatedQuantity({ item }: { item: SaleItemDraft }) {
+  const quantity = calculateApproximateQuantity(item)
+
+  return (
+    <div className="calculated-quantity-field">
+      <span>Quantidade aproximada</span>
+      <output aria-live="polite">
+        {quantity === null ? '—' : formatQuantity(quantity, 'kg')}
+      </output>
+    </div>
+  )
 }
 
 export function NewSalePage() {
@@ -100,10 +148,21 @@ export function NewSalePage() {
       if (item.description.trim().length > 200) {
         return `A descrição do item ${itemNumber} pode ter no máximo 200 caracteres.`
       }
+      if (
+        item.unit === 'kg'
+        && item.calculationMode === 'amount'
+        && !isValidDecimal(item.requestedAmount, 2)
+      ) {
+        return `O valor desejado do item ${itemNumber} deve ser positivo e ter até 2 casas decimais.`
+      }
       if (item.unit === 'un' && !/^\d+$/.test(item.quantity.trim())) {
         return `A quantidade do item ${itemNumber} deve ser um número inteiro.`
       }
-      if (item.unit === 'kg' && !isValidDecimal(item.quantity, 3)) {
+      if (
+        item.unit === 'kg'
+        && item.calculationMode === 'quantity'
+        && !isValidDecimal(item.quantity, 3)
+      ) {
         return `A quantidade do item ${itemNumber} deve ser positiva e ter até 3 casas decimais.`
       }
       if (item.unit === 'un' && parseNumber(item.quantity) <= 0) {
@@ -122,12 +181,26 @@ export function NewSalePage() {
     return {
       ...(normalizedCustomer ? { cliente_nome: normalizedCustomer } : {}),
       forma_pagamento: paymentMethod,
-      itens: items.map((item) => ({
-        descricao: item.description.trim(),
-        unidade_medida: item.unit,
-        quantidade: parseNumber(item.quantity),
-        valor_unitario: parseNumber(item.unitPrice),
-      })),
+      itens: items.map((item): RegisterSaleItemRequest => {
+        const commonFields = {
+          descricao: item.description.trim(),
+          unidade_medida: item.unit,
+          valor_unitario: parseNumber(item.unitPrice),
+        }
+
+        if (item.unit === 'kg' && item.calculationMode === 'amount') {
+          return {
+            ...commonFields,
+            unidade_medida: 'kg',
+            valor_solicitado: parseNumber(item.requestedAmount),
+          }
+        }
+
+        return {
+          ...commonFields,
+          quantidade: parseNumber(item.quantity),
+        }
+      }),
     }
   }
 
@@ -202,7 +275,7 @@ export function NewSalePage() {
               <span className="section-number">02</span>
               <div>
                 <h3>Itens da venda</h3>
-                <p>Informe o produto, a quantidade e o valor unitário.</p>
+                <p>Informe o produto, como calcular a venda e o valor unitário.</p>
               </div>
               <span className="item-count">{items.length} {items.length === 1 ? 'item' : 'itens'}</span>
             </div>
@@ -224,7 +297,42 @@ export function NewSalePage() {
                       </button>
                     )}
                   </div>
-                  <div className="item-fields">
+                  <div className={`item-fields ${
+                    item.unit === 'kg' && item.calculationMode === 'amount'
+                      ? 'is-amount-mode'
+                      : ''
+                  }`}>
+                    {item.unit === 'kg' && (
+                      <div className="item-calculation-mode">
+                        <span>Como calcular</span>
+                        <div role="group" aria-label={`Forma de cálculo do item ${index + 1}`}>
+                          <button
+                            className={item.calculationMode === 'quantity' ? 'is-active' : ''}
+                            type="button"
+                            aria-pressed={item.calculationMode === 'quantity'}
+                            onClick={() => updateItem(item.id, {
+                              calculationMode: 'quantity',
+                              requestedAmount: '',
+                            })}
+                            disabled={isSubmitting}
+                          >
+                            Por quantidade
+                          </button>
+                          <button
+                            className={item.calculationMode === 'amount' ? 'is-active' : ''}
+                            type="button"
+                            aria-pressed={item.calculationMode === 'amount'}
+                            onClick={() => updateItem(item.id, {
+                              calculationMode: 'amount',
+                              quantity: '',
+                            })}
+                            disabled={isSubmitting}
+                          >
+                            Por valor desejado
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <label className="description-field">
                       <span>Descrição</span>
                       <input
@@ -242,7 +350,9 @@ export function NewSalePage() {
                         value={item.unit}
                         onChange={(event) => updateItem(item.id, {
                           unit: event.target.value as MeasurementUnit,
+                          calculationMode: 'quantity',
                           quantity: '',
+                          requestedAmount: '',
                         })}
                         disabled={isSubmitting}
                       >
@@ -250,20 +360,40 @@ export function NewSalePage() {
                         <option value="un">Unidade (un)</option>
                       </select>
                     </label>
-                    <label>
-                      <span>Quantidade</span>
-                      <div className="input-suffix">
-                        <input
-                          type="text"
-                          inputMode={item.unit === 'kg' ? 'decimal' : 'numeric'}
-                          placeholder={item.unit === 'kg' ? '0,000' : '0'}
-                          value={item.quantity}
-                          onChange={(event) => updateItem(item.id, { quantity: event.target.value })}
-                          disabled={isSubmitting}
-                        />
-                        <span>{item.unit}</span>
-                      </div>
-                    </label>
+                    {item.unit === 'kg' && item.calculationMode === 'amount' ? (
+                      <>
+                        <label>
+                          <span>Valor desejado</span>
+                          <div className="input-prefix">
+                            <span>R$</span>
+                            <input
+                              type="text"
+                              inputMode="decimal"
+                              placeholder="0,00"
+                              value={item.requestedAmount}
+                              onChange={(event) => updateItem(item.id, { requestedAmount: event.target.value })}
+                              disabled={isSubmitting}
+                            />
+                          </div>
+                        </label>
+                        <CalculatedQuantity item={item} />
+                      </>
+                    ) : (
+                      <label>
+                        <span>Quantidade</span>
+                        <div className="input-suffix">
+                          <input
+                            type="text"
+                            inputMode={item.unit === 'kg' ? 'decimal' : 'numeric'}
+                            placeholder={item.unit === 'kg' ? '0,000' : '0'}
+                            value={item.quantity}
+                            onChange={(event) => updateItem(item.id, { quantity: event.target.value })}
+                            disabled={isSubmitting}
+                          />
+                          <span>{item.unit}</span>
+                        </div>
+                      </label>
+                    )}
                     <label>
                       <span>Valor unitário</span>
                       <div className="input-prefix">

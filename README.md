@@ -11,6 +11,7 @@ dos resultados atuais da loja.
 - registro de vendas com um ou mais itens;
 - venda anônima ou com nome do cliente;
 - itens vendidos por quilograma ou unidade;
+- itens em quilograma calculados pelo peso ou pelo valor desejado pelo cliente;
 - pagamento em dinheiro, Pix ou cartão;
 - histórico do dia, da semana e do mês atual;
 - busca local no histórico por cliente, item ou número da venda;
