@@ -440,10 +440,18 @@ button:disabled { cursor: wait; opacity: 0.65; }
 .icon-button { display: grid; width: 34px; height: 34px; place-items: center; border: 0; border-radius: 9px; background: transparent; }
 .danger-icon-button { color: var(--danger); }
 .danger-icon-button:hover { background: #fff0f0; }
-.item-fields { display: grid; grid-template-columns: minmax(180px, 2fr) minmax(140px, 1fr) minmax(110px, 0.8fr) minmax(120px, 1fr); gap: 12px; }
+.item-fields { display: grid; grid-template-columns: minmax(180px, 1.35fr) minmax(140px, 0.9fr) minmax(110px, 0.75fr) minmax(120px, 0.85fr); gap: 12px; }
+.item-fields.is-amount-mode { grid-template-columns: minmax(180px, 1.1fr) minmax(140px, 0.9fr) minmax(120px, 0.8fr) minmax(130px, 0.8fr) minmax(125px, 0.9fr); }
+.item-calculation-mode { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
+.item-calculation-mode > span { color: var(--navy-950); font-size: 0.77rem; font-weight: 750; }
+.item-calculation-mode > div { display: flex; gap: 4px; border: 1px solid var(--border); border-radius: 10px; padding: 3px; background: var(--white); }
+.item-calculation-mode button { min-height: 34px; border: 0; border-radius: 7px; padding: 0 13px; color: var(--muted); background: transparent; font-size: 0.73rem; font-weight: 750; }
+.item-calculation-mode button.is-active { color: var(--white); background: var(--navy-800); }
 .item-subtotal { grid-column: 1 / -1; display: flex; align-items: center; justify-content: flex-end; gap: 12px; border-top: 1px dashed #d8cec4; padding-top: 13px; }
 .item-subtotal > span { margin: 0; color: var(--muted); }
 .item-subtotal strong { color: var(--navy-950); font-size: 1rem; }
+.calculated-quantity-field > span { display: block; margin-bottom: 8px; color: var(--navy-950); font-size: 0.77rem; font-weight: 750; }
+.calculated-quantity-field output { display: flex; width: 100%; height: 48px; align-items: center; border: 1px solid #e4cbbb; border-radius: 11px; padding: 0 13px; color: var(--terracotta-700); background: var(--terracotta-50); font-size: 0.84rem; font-weight: 800; white-space: nowrap; }
 .input-suffix, .input-prefix { position: relative; }
 .input-suffix > span, .input-prefix > span {
   position: absolute;
@@ -608,6 +616,8 @@ button:disabled { cursor: wait; opacity: 0.65; }
   .search-field { width: 100%; }
   .sale-card summary { grid-template-columns: 1.2fr 1fr 0.7fr 24px; }
   .sale-payment { display: none; }
+  .item-fields.is-amount-mode { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .item-fields.is-amount-mode .description-field { grid-column: 1 / -1; }
 }
 
 @media (max-width: 620px) {
@@ -621,9 +631,12 @@ button:disabled { cursor: wait; opacity: 0.65; }
   .quick-action-card { grid-template-columns: auto minmax(0, 1fr); min-height: auto; padding: 20px; }
   .quick-action-card > .icon { display: none; }
   .form-card, .sale-summary-card { padding: 19px; }
-  .item-fields { grid-template-columns: 1fr 1fr; }
+  .item-fields, .item-fields.is-amount-mode { grid-template-columns: 1fr 1fr; }
   .description-field { grid-column: 1 / -1; }
   .item-subtotal { grid-column: 1 / -1; }
+  .item-calculation-mode { align-items: stretch; flex-direction: column; }
+  .item-calculation-mode > div { width: 100%; }
+  .item-calculation-mode button { flex: 1; }
   .period-tabs { width: 100%; }
   .period-tabs button { min-width: 0; flex: 1; }
   .sales-summary-bar { grid-template-columns: 1fr 1fr; padding: 16px; }
@@ -638,7 +651,7 @@ button:disabled { cursor: wait; opacity: 0.65; }
 }
 
 @media (max-width: 430px) {
-  .item-fields { grid-template-columns: 1fr; }
+  .item-fields, .item-fields.is-amount-mode { grid-template-columns: 1fr; }
   .description-field { grid-column: auto; }
   .item-subtotal { grid-column: auto; }
   .items-heading { flex-wrap: wrap; }

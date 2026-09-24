@@ -2,12 +2,26 @@ export type PaymentMethod = 'dinheiro' | 'pix' | 'cartao'
 export type MeasurementUnit = 'kg' | 'un'
 export type SalesPeriod = 'diario' | 'semanal' | 'mensal'
 
-export interface RegisterSaleItemRequest {
+interface RegisterSaleItemBaseRequest {
   descricao: string
   unidade_medida: MeasurementUnit
-  quantidade: number
   valor_unitario: number
 }
+
+export interface RegisterSaleItemByQuantityRequest extends RegisterSaleItemBaseRequest {
+  quantidade: number
+  valor_solicitado?: never
+}
+
+export interface RegisterSaleItemByAmountRequest extends RegisterSaleItemBaseRequest {
+  unidade_medida: 'kg'
+  quantidade?: never
+  valor_solicitado: number
+}
+
+export type RegisterSaleItemRequest =
+  | RegisterSaleItemByQuantityRequest
+  | RegisterSaleItemByAmountRequest
 
 export interface RegisterSaleRequest {
   cliente_nome?: string
@@ -15,8 +29,12 @@ export interface RegisterSaleRequest {
   itens: RegisterSaleItemRequest[]
 }
 
-export interface SaleItem extends RegisterSaleItemRequest {
+export interface SaleItem {
   id: number
+  descricao: string
+  unidade_medida: MeasurementUnit
+  quantidade: number
+  valor_unitario: number
   subtotal: number
 }
 
